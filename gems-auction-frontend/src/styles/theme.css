@@ -1,0 +1,15 @@
+:root {
+  --brand: #4f46e5;   /* indigo */
+  --danger: #e11d48;  /* rose */
+  --gold: #d4af37;    /* luxury accent */
+}
+
+.bg-brand {
+  background-color: var(--brand);
+}
+.text-gold {
+  color: var(--gold);
+}
+.border-gold {
+  border-color: var(--gold);
+}

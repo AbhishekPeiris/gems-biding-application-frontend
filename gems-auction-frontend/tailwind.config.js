@@ -1,9 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [],
+  content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
-    extend: {},
+    extend: {
+      borderRadius: {
+        "2xl": "1rem",
+      },
+    },
   },
   plugins: [],
-}
-
+};
