@@ -7,9 +7,16 @@ export const useChatStore = create((set, get) => ({
 
     addMessage: (msg) => {
         if (!msg) return;
+
         const current = get().messages;
-        set({ messages: [...current, msg] }); // keep in chronological order
+
+        // Prevent duplicate IDs
+        const exists = current.some(m => m.id === msg.id);
+        if (exists) return;
+
+        set({ messages: [...current, msg] });
     },
+
 
     clearMessages: () => set({ messages: [] }),
 }));

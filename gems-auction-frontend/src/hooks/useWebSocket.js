@@ -10,28 +10,47 @@ export default function useWebSocket(auctionId) {
     useEffect(() => {
         if (!auctionId) return;
 
+        // 🔥 Prevent duplicate connection
+        if (socketRef.current) {
+            socketRef.current.close();
+        }
+
         const socket = new WebSocket(
             `ws://localhost:8081/ws/auction/${auctionId}`
         );
 
         socket.onopen = () => {
-            console.log("WebSocket connected");
+            console.log("✅ WebSocket connected");
         };
 
         socket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
+            try {
+                const data = JSON.parse(event.data);
 
-            if (data.type === "BID_PLACED") {
-                updateCurrentPrice(data.payload.new_high_bid);
-            }
+                if (!data?.type) return;
 
-            if (data.type === "CHAT_MESSAGE") {
-                addMessage(data.payload);
+                // 🔥 Handle bid update
+                if (data.type === "BID_PLACED") {
+                    updateCurrentPrice(data.payload.new_high_bid);
+                }
+
+                // 🔥 Handle chat message safely
+                if (data.type === "CHAT_MESSAGE") {
+                    if (!data.payload?.id) return; // prevent invalid
+                    addMessage(data.payload); // duplicate protection handled in store
+                }
+
+            } catch (err) {
+                console.error("WebSocket parse error:", err);
             }
         };
 
+        socket.onerror = (err) => {
+            console.error("WebSocket error:", err);
+        };
+
         socket.onclose = () => {
-            console.log("WebSocket disconnected");
+            console.log("❌ WebSocket disconnected");
         };
 
         socketRef.current = socket;
@@ -39,7 +58,7 @@ export default function useWebSocket(auctionId) {
         return () => {
             socket.close();
         };
-    }, [auctionId]);
+    }, [auctionId, updateCurrentPrice, addMessage]);
 
     return socketRef;
 }
